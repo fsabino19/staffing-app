@@ -1,7 +1,6 @@
 import streamlit as st
 import math
 
-st.write("BUILDING-LEVEL MODEL ACTIVE")
 st.title("Amazon Building-Level HC Staffing Model")
 
 # Inputs
