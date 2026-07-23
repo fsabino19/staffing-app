@@ -105,4 +105,4 @@ else:
             st.write(f"UPH: {uph:.2f} units/hr")
             st.write(f"Effective UPH (after disruption): {effective_uph:.2f} units/hr")
             st.write(f"Per-Associate Output: {per_associate_output_units:.2f} units/shift")
-            st.write(f"Raw HC: {hc_raw:.2f} associates"
+            st.write(f"Raw HC: {hc_raw:.2f} associates")
