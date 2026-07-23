@@ -1,30 +1,33 @@
 import streamlit as st
 import math
 
-st.title("Amazon Building-Level HC Staffing Model")
+st.title("Amazon Building-Level HC Staffing Model (Units-Based)")
 
 # Inputs
-total_buffer = st.number_input("Total Buffer Depth (totes)", min_value=0)
-total_inflow = st.number_input("Total Inflow Rate (totes/hour)", min_value=0.0)
-processing_rate = st.number_input("Processing Rate per Worker (totes/hour)", min_value=0.0)
+units_per_tote = st.number_input("Average Units per Tote", min_value=1.0)
+total_buffer_totes = st.number_input("Total Buffer (totes)", min_value=0)
+total_inflow_totes = st.number_input("Total Inflow (totes/hour)", min_value=0.0)
+processing_rate_totes = st.number_input("Processing Rate per Worker (totes/hour)", min_value=0.0)
 shift_length = st.number_input("Shift Length (hours)", min_value=1)
 
 if st.button("Calculate HC"):
-    # Total workload this shift
-    total_workload = total_buffer + (total_inflow * shift_length)
+    # Convert everything to units
+    total_buffer_units = total_buffer_totes * units_per_tote
+    total_inflow_units = total_inflow_totes * units_per_tote
+    worker_capacity_units = processing_rate_totes * units_per_tote
 
-    # Worker capacity
-    worker_capacity = processing_rate * shift_length
+    # Total workload this shift (units)
+    total_workload_units = total_buffer_units + (total_inflow_units * shift_length)
 
     # Required HC
-    hc = total_workload / worker_capacity
+    hc = total_workload_units / (worker_capacity_units * shift_length)
     recommended_hc = math.ceil(hc)
 
-    # Per-person load
-    per_person_load = total_workload / recommended_hc
+    # Per-person load (units)
+    per_person_load_units = total_workload_units / recommended_hc
 
     # Clearance capability
-    clearance_pct = (worker_capacity * recommended_hc) / total_workload
+    clearance_pct = (worker_capacity_units * recommended_hc * shift_length) / total_workload_units
 
     # Backlog risk
     if clearance_pct < 1:
@@ -36,7 +39,7 @@ if st.button("Calculate HC"):
 
     # Outputs
     st.metric("Recommended Headcount", recommended_hc)
-    st.write(f"Total Workload: {total_workload:.2f} totes")
-    st.write(f"Per-Person Load: {per_person_load:.2f} totes")
+    st.write(f"Total Workload: {total_workload_units:.2f} units")
+    st.write(f"Per-Person Load: {per_person_load_units:.2f} units")
     st.write(f"Clearance Capability: {clearance_pct:.2f}x")
     st.write(backlog_msg)
